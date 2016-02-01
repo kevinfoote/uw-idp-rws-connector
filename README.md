@@ -11,4 +11,3 @@ This dataconnector for shibboleth idp 3.1 retrieves data from a restful web serv
 Jim Fox
 fox@uw.edu
 
-
