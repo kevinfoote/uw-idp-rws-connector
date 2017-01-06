@@ -291,10 +291,11 @@ public class RwsDataConnector extends AbstractDataConnector {
       try {
         String xml = httpDataSource.getResource(baseUrl + queryString);
 
-        /** Java 7 documentation removed the thread warnings from DocumentBuilderFactory and DocumentBuilder.
-            If these are still not thread safe this parsing should be synchronized. */
-
-        Document doc = documentBuilder.parse(new InputSource(new StringReader(xml)));
+        /** The parser needs to be synchronized **/
+        Document doc = null;
+        synchronized(this) {
+                doc = documentBuilder.parse(new InputSource(new StringReader(xml)));
+        }
 
         Map<String, IdPAttribute> attributes = new HashMap<String, IdPAttribute>();
 
@@ -323,17 +324,17 @@ public class RwsDataConnector extends AbstractDataConnector {
         return attributes;
 
       } catch (IOException e) {
-          log.error("get rws io excpet: " + e);
-          throw new ResolutionException();
+          log.error("rws io exception: " + e);
+          throw new ResolutionException("rws resolver io error: " + e.getMessage());
       } catch (SAXException e) {
-          log.error("get rws sax excpet: " + e);
-          throw new ResolutionException();
+          log.error("rws sax exception: " + e);
+          throw new ResolutionException("rws resolver parse error: " + e.getMessage());
       } catch (IllegalArgumentException e) {
-          log.error("get rws arg excpet: " + e);
-          throw new ResolutionException();
+          log.error("rws arg exception: " + e);
+          throw new ResolutionException(e.getMessage());
       } catch (XPathExpressionException e) {
-          log.error("get rws xpath excpet: " + e);
-          throw new ResolutionException();
+          log.error("rws xpath exception: " + e);
+          throw new ResolutionException(e.getMessage());
       }
 
     }
